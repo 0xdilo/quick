@@ -6,7 +6,7 @@ Rectangle {
     implicitWidth: visible ? batRow.implicitWidth + 18 : 0
     implicitHeight: 28
     radius: 14
-    color: charging ? Qt.rgba(theme.mint.r, theme.mint.g, theme.mint.b, 0.2) : "transparent"
+    color: charging ? Qt.rgba(theme.success.r, theme.success.g, theme.success.b, 0.15) : "transparent"
     visible: capacity >= 0
 
     property int capacity: -1
@@ -39,7 +39,7 @@ Rectangle {
         stdout: SplitParser { onRead: data => status = data || "" }
     }
 
-    property color batColor: charging ? theme.mint : (capacity <= 20 ? theme.pink : theme.text)
+    property color batColor: charging ? theme.success : (capacity <= 20 ? theme.error : theme.icon)
 
     Row {
         id: batRow

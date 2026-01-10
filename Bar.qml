@@ -9,6 +9,7 @@ PanelWindow {
     id: bar
 
     signal launcherRequested()
+    signal controlCenterRequested()
 
     required property var targetScreen
     screen: targetScreen
@@ -29,23 +30,23 @@ PanelWindow {
 
         property color bg: Theme.bgAlpha90
         property color bgSoft: Theme.surface
-        property color bgCard: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.95)
-        property color bgHover: Qt.lighter(Theme.surface, 1.1)
+        property color bgCard: Qt.rgba(Theme.surfaceHigh.r, Theme.surfaceHigh.g, Theme.surfaceHigh.b, 0.95)
+        property color bgHover: Theme.surfaceHigh
 
-        property color pink: Theme.secondary
-        property color pinkSoft: Qt.lighter(Theme.secondary, 1.2)
-        property color pinkPale: Theme.secondary
-        property color lavender: Theme.magenta
-        property color lavenderSoft: Qt.lighter(Theme.magenta, 1.1)
-        property color mint: Theme.accent
-        property color mintSoft: Qt.lighter(Theme.accent, 1.1)
-        property color peach: Theme.yellow
-        property color cream: Theme.surface
-        property color sky: Theme.blue
+        property color accent: Theme.accent
+        property color accentSoft: Theme.secondary
+        property color icon: Theme.secondary
+        property color iconHover: Theme.accent
+
+        property color pink: Theme.accent
+        property color pinkSoft: Theme.secondary
 
         property color text: Theme.foreground
-        property color textSoft: Qt.darker(Theme.foreground, 1.1)
+        property color textSoft: Qt.darker(Theme.foreground, 1.05)
         property color textMuted: Theme.muted
+
+        property color success: Theme.success
+        property color error: Theme.error
 
         property string font: Theme.fontFamily
         property int fontSize: 13
@@ -54,22 +55,22 @@ PanelWindow {
         property int fontSizeIcon: 18
         property int fontSizeIconLg: 20
 
-        property int radius: 0
-        property int radiusMd: 0
-        property int radiusSm: 0
+        property int radius: 12
+        property int radiusMd: 8
+        property int radiusSm: 6
     }
 
     Rectangle {
         id: barBg
         anchors.fill: parent
-        color: Qt.rgba(Theme.background.r, Theme.background.g, Theme.background.b, 0.85)
+        color: Theme.bgAlpha80
 
         Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: 1
-            color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.3)
+            color: Theme.border
         }
 
         RowLayout {
@@ -81,7 +82,7 @@ PanelWindow {
             RowLayout {
                 spacing: 10
                 LogoWidget { onClicked: bar.launcherRequested() }
-                ClockWidget {}
+                ClockWidget { onClicked: bar.controlCenterRequested() }
                 TrayWidget {}
             }
 

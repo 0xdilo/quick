@@ -17,11 +17,13 @@ ShellRoot {
         function toggleLauncherIpc() { shell.toggleLauncher() }
         function toggleClipboardIpc() { shell.toggleClipboard() }
         function toggleToolsIpc() { shell.toggleTools() }
+        function toggleControlCenterIpc() { shell.toggleControlCenter() }
     }
 
     property bool launcherOpen: false
     property bool clipboardOpen: false
     property bool toolsOpen: false
+    property bool controlCenterOpen: false
 
     Variants {
         model: Quickshell.screens
@@ -36,6 +38,7 @@ ShellRoot {
 
                 onShouldShowChanged: {
                     if (shouldShow) show()
+                    else hide()
                 }
 
                 onClosed: shell.launcherOpen = false
@@ -56,6 +59,7 @@ ShellRoot {
 
                 onShouldShowChanged: {
                     if (shouldShow) show()
+                    else hide()
                 }
 
                 onClosed: shell.clipboardOpen = false
@@ -76,9 +80,31 @@ ShellRoot {
 
                 onShouldShowChanged: {
                     if (shouldShow) show()
+                    else hide()
                 }
 
                 onClosed: shell.toolsOpen = false
+            }
+        }
+    }
+
+    Variants {
+        model: Quickshell.screens
+
+        delegate: Component {
+            ControlCenter {
+                id: controlInstance
+                required property var modelData
+                screen: modelData
+
+                property bool shouldShow: shell.controlCenterOpen && modelData.name === shell.activeMonitor
+
+                onShouldShowChanged: {
+                    if (shouldShow) show()
+                    else hide()
+                }
+
+                onClosed: shell.controlCenterOpen = false
             }
         }
     }
@@ -91,6 +117,7 @@ ShellRoot {
                 required property var modelData
                 targetScreen: modelData
                 onLauncherRequested: shell.toggleLauncher()
+                onControlCenterRequested: shell.toggleControlCenter()
             }
         }
     }
@@ -104,7 +131,7 @@ ShellRoot {
 
     Timer {
         id: pollTimer
-        interval: 50
+        interval: 250
         running: true
         repeat: true
         onTriggered: {
@@ -206,7 +233,7 @@ ShellRoot {
                     opacity: osdWindow.shouldShow ? 1 : 0
 
                     Behavior on opacity {
-                        NumberAnimation { duration: 150 }
+                        NumberAnimation { duration: 100 }
                     }
 
                     property bool isVolume: shell.osdType === "volume"
@@ -301,5 +328,9 @@ ShellRoot {
 
     function toggleTools() {
         shell.toolsOpen = !shell.toolsOpen
+    }
+
+    function toggleControlCenter() {
+        shell.controlCenterOpen = !shell.controlCenterOpen
     }
 }

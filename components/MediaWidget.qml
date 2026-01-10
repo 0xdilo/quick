@@ -7,7 +7,7 @@ Rectangle {
     implicitWidth: visible ? mediaRow.implicitWidth + 20 : 0
     implicitHeight: 28
     radius: 14
-    color: Qt.rgba(theme.pink.r, theme.pink.g, theme.pink.b, 0.15)
+    color: Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1)
     visible: player !== null && playerStatus !== "Stopped"
 
     property var player: {
@@ -31,7 +31,7 @@ Rectangle {
             text: playing ? "󰐊" : "󰏤"
             font.family: theme.font
             font.pixelSize: 16
-            color: theme.pink
+            color: theme.icon
 
             MouseArea {
                 anchors.fill: parent

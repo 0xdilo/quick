@@ -7,7 +7,7 @@ Rectangle {
     implicitWidth: 32
     implicitHeight: 28
     radius: 14
-    color: btMouse.containsMouse ? Qt.rgba(theme.lavender.r, theme.lavender.g, theme.lavender.b, 0.15) : "transparent"
+    color: btMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
 
     property bool powered: false
     property int devices: 0
@@ -36,7 +36,7 @@ Rectangle {
         text: "\uf293"
         font.family: theme.font
         font.pixelSize: 18
-        color: !powered ? theme.textMuted : (devices > 0 ? theme.lavender : theme.textSoft)
+        color: !powered ? theme.textMuted : (devices > 0 ? theme.icon : theme.textSoft)
     }
 
     Rectangle {
@@ -47,7 +47,7 @@ Rectangle {
         width: 14
         height: 14
         radius: 7
-        color: theme.lavender
+        color: theme.icon
 
         Text {
             anchors.centerIn: parent
@@ -55,7 +55,7 @@ Rectangle {
             font.family: theme.font
             font.pixelSize: 9
             font.weight: Font.Bold
-            color: "#ffffff"
+            color: theme.bg
         }
     }
 

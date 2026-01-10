@@ -6,7 +6,9 @@ Rectangle {
     implicitWidth: clockRow.implicitWidth + 20
     implicitHeight: 32
     radius: 16
-    color: clockMouse.containsMouse ? Qt.rgba(theme.lavender.r, theme.lavender.g, theme.lavender.b, 0.12) : "transparent"
+    color: clockMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
+
+    signal clicked()
 
     Row {
         id: clockRow
@@ -17,7 +19,7 @@ Rectangle {
             text: "󰥔"
             font.family: theme.font
             font.pixelSize: 18
-            color: theme.lavender
+            color: theme.icon
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -29,7 +31,7 @@ Rectangle {
                 font.family: theme.font
                 font.pixelSize: 15
                 font.weight: Font.DemiBold
-                color: clockMouse.containsMouse ? theme.lavender : theme.text
+                color: clockMouse.containsMouse ? theme.iconHover : theme.text
 
                 Timer {
                     interval: 1000
@@ -62,5 +64,6 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        onClicked: root.clicked()
     }
 }

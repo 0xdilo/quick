@@ -39,20 +39,18 @@ Row {
         stdout: SplitParser { onRead: data => temp = parseInt(data) || 0 }
     }
 
-    Stat { icon: "\uf06d"; value: temp + "°"; accent: theme.peach; accentBg: Qt.rgba(theme.peach.r, theme.peach.g, theme.peach.b, 0.15) }
-    Stat { icon: "\uf085"; value: cpu + "%"; accent: theme.lavender; accentBg: Qt.rgba(theme.lavender.r, theme.lavender.g, theme.lavender.b, 0.15) }
-    Stat { icon: "\uf1c0"; value: mem.toFixed(1) + "G"; accent: theme.sky; accentBg: Qt.rgba(theme.sky.r, theme.sky.g, theme.sky.b, 0.15) }
+    Stat { icon: "\uf06d"; value: temp + "°" }
+    Stat { icon: "\uf085"; value: cpu + "%" }
+    Stat { icon: "\uf1c0"; value: mem.toFixed(1) + "G" }
 
     component Stat: Rectangle {
         property string icon
         property string value
-        property color accent
-        property color accentBg
 
         implicitWidth: statRow.implicitWidth + 14
         implicitHeight: 28
         radius: 14
-        color: statMouse.containsMouse ? accentBg : "transparent"
+        color: statMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
 
         Row {
             id: statRow
@@ -63,7 +61,7 @@ Row {
                 text: icon
                 font.family: theme.font
                 font.pixelSize: 16
-                color: accent
+                color: theme.icon
                 anchors.verticalCenter: parent.verticalCenter
             }
 
@@ -72,7 +70,7 @@ Row {
                 font.family: theme.font
                 font.pixelSize: 12
                 font.weight: Font.Medium
-                color: statMouse.containsMouse ? accent : theme.text
+                color: statMouse.containsMouse ? theme.iconHover : theme.text
                 anchors.verticalCenter: parent.verticalCenter
             }
         }

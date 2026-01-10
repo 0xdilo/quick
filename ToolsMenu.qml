@@ -229,7 +229,17 @@ PanelWindow {
         radius: 16
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.3)
+        border.color: Theme.border
+
+        layer.enabled: true
+        layer.smooth: true
+
+        scale: root.visible ? 1.0 : 0.96
+        opacity: root.visible ? 1.0 : 0
+
+        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+        Behavior on opacity { NumberAnimation { duration: 100 } }
+        Behavior on height { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
 
         ColumnLayout {
             anchors.fill: parent
@@ -327,7 +337,7 @@ PanelWindow {
                     width: optionsList.width
                     height: 50
                     radius: 10
-                    color: index === root.selectedIndex ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : "transparent"
+                    color: index === root.selectedIndex ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12) : "transparent"
 
                     RowLayout {
                         anchors.fill: parent

@@ -30,7 +30,6 @@ PanelWindow {
     property int selectedIndex: 0
     property string searchText: ""
     property bool appsLoaded: false
-
     property var commands: []
 
     Component.onCompleted: loadApps()
@@ -40,7 +39,7 @@ PanelWindow {
         searchInput.text = ""
         searchText = ""
         selectedIndex = 0
-        filteredApps = apps.slice(0, 12)
+        filteredApps = apps.slice(0, 9)
         visible = true
         searchInput.forceActiveFocus()
     }
@@ -56,20 +55,20 @@ PanelWindow {
 
     function filterApps() {
         if (searchText === "") {
-            filteredApps = apps.slice(0, 12)
+            filteredApps = apps.slice(0, 9)
             commands = []
         } else {
             var query = searchText.toLowerCase()
             var result = []
 
-            for (var j = 0; j < apps.length && result.length < 8; j++) {
+            for (var j = 0; j < apps.length && result.length < 6; j++) {
                 if (apps[j].name.toLowerCase().indexOf(query) !== -1) {
                     result.push(apps[j])
                 }
             }
 
-            if (result.length < 8 && searchText.length >= 2) {
-                cmdProc.command = ["sh", "-c", "compgen -c " + searchText + " 2>/dev/null | head -5"]
+            if (result.length < 6 && searchText.length >= 2) {
+                cmdProc.command = ["sh", "-c", "compgen -c " + searchText + " 2>/dev/null | head -4"]
                 cmdProc.running = true
             }
 
@@ -87,7 +86,7 @@ PanelWindow {
                     newCmds.push({ name: data, exec: data, icon: "", isCmd: true })
                     launcher.commands = newCmds
                     var newFiltered = launcher.filteredApps.slice()
-                    if (newFiltered.length < 12) {
+                    if (newFiltered.length < 9) {
                         newFiltered.push({ name: data, exec: data, icon: "", isCmd: true })
                         launcher.filteredApps = newFiltered
                     }
@@ -133,38 +132,175 @@ PanelWindow {
     }
 
     Rectangle {
+        id: container
         anchors.centerIn: parent
-        width: 480
-        height: 420
-        radius: 16
+        width: 420
+        height: 380
+        radius: 20
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.3)
+        border.color: Theme.border
+
+        layer.enabled: true
+        layer.smooth: true
+
+        scale: launcher.visible ? 1.0 : 0.96
+        opacity: launcher.visible ? 1.0 : 0
+        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+        Behavior on opacity { NumberAnimation { duration: 100 } }
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 16
-            spacing: 12
+            anchors.margins: 20
+            spacing: 16
+
+            Item {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                Text {
+                    anchors.centerIn: parent
+                    text: launcher.filteredApps.length === 0 ? (launcher.searchText.length > 0 ? "\uf002" : "\uf135") : ""
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 48
+                    color: Theme.muted
+                    opacity: 0.3
+                    visible: launcher.filteredApps.length === 0
+                }
+
+                Text {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.top: parent.verticalCenter
+                    anchors.topMargin: 30
+                    text: launcher.searchText.length > 0 ? "Press Enter to run" : "Type to search"
+                    font.family: Theme.fontFamily
+                    font.pixelSize: 12
+                    color: Theme.muted
+                    visible: launcher.filteredApps.length === 0
+                }
+
+                ListView {
+                    id: appsList
+                    anchors.fill: parent
+                    model: launcher.filteredApps
+                    clip: true
+                    spacing: 4
+                    currentIndex: launcher.selectedIndex
+                    cacheBuffer: 400
+
+                    delegate: Rectangle {
+                        id: itemDelegate
+                        width: appsList.width
+                        height: 52
+                        radius: 12
+                        color: index === launcher.selectedIndex ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
+
+                        Behavior on color { ColorAnimation { duration: 80 } }
+
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.leftMargin: 12
+                            anchors.rightMargin: 12
+                            spacing: 14
+
+                            Rectangle {
+                                Layout.preferredWidth: 36
+                                Layout.preferredHeight: 36
+                                radius: 10
+                                color: "transparent"
+
+                                Image {
+                                    id: appIcon
+                                    anchors.centerIn: parent
+                                    width: 32
+                                    height: 32
+                                    source: modelData.icon ? "image://icon/" + modelData.icon : ""
+                                    sourceSize: Qt.size(32, 32)
+                                    visible: status === Image.Ready
+                                    asynchronous: true
+                                }
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    radius: 10
+                                    color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
+                                    visible: appIcon.status !== Image.Ready
+
+                                    Text {
+                                        anchors.centerIn: parent
+                                        text: modelData.isCmd ? "\uf120" : "\uf135"
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 16
+                                        color: Theme.secondary
+                                    }
+                                }
+                            }
+
+                            ColumnLayout {
+                                Layout.fillWidth: true
+                                spacing: 2
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.name
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 14
+                                    font.weight: index === launcher.selectedIndex ? Font.Medium : Font.Normal
+                                    color: Theme.foreground
+                                    elide: Text.ElideRight
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    visible: modelData.isCmd
+                                    text: "command"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 11
+                                    color: Theme.muted
+                                }
+                            }
+
+                            Text {
+                                text: "\uf054"
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 10
+                                color: Theme.accent
+                                visible: index === launcher.selectedIndex
+                            }
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
+                            onClicked: launcher.launchApp(modelData.exec)
+                            onEntered: launcher.selectedIndex = index
+                        }
+                    }
+                }
+            }
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 44
-                radius: 22
-                color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.1)
+                Layout.preferredHeight: 48
+                radius: 24
+                color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.8)
                 border.width: 1
-                border.color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.2)
+                border.color: searchInput.activeFocus ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.3) : Theme.border
+
+                Behavior on border.color { ColorAnimation { duration: 80 } }
 
                 RowLayout {
                     anchors.fill: parent
-                    anchors.leftMargin: 16
-                    anchors.rightMargin: 16
-                    spacing: 10
+                    anchors.leftMargin: 18
+                    anchors.rightMargin: 18
+                    spacing: 12
 
                     Text {
                         text: "\uf002"
                         font.family: Theme.fontFamily
                         font.pixelSize: 16
-                        color: Theme.secondary
+                        color: searchInput.activeFocus ? Theme.accent : Theme.muted
                     }
 
                     TextInput {
@@ -173,13 +309,14 @@ PanelWindow {
                         font.family: Theme.fontFamily
                         font.pixelSize: 14
                         color: Theme.foreground
-                        selectionColor: Theme.secondary
-                        selectedTextColor: "#ffffff"
+                        selectionColor: Theme.accent
+                        selectedTextColor: Theme.background
                         clip: true
+                        verticalAlignment: TextInput.AlignVCenter
 
                         Text {
                             anchors.fill: parent
-                            text: "Search apps or commands..."
+                            text: "Search..."
                             font: parent.font
                             color: Theme.muted
                             visible: !parent.text
@@ -207,157 +344,14 @@ PanelWindow {
                             }
                         }
                     }
-                }
-            }
 
-            Text {
-                Layout.leftMargin: 4
-                text: launcher.filteredApps.length > 0 ? (launcher.filteredApps[0].isCmd ? "Commands" : "Applications") : (launcher.searchText.length > 0 ? "Press Enter to run: " + launcher.searchText : "Type to search...")
-                font.family: Theme.fontFamily
-                font.pixelSize: 11
-                color: Theme.muted
-            }
-
-            ListView {
-                id: appsList
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                model: launcher.filteredApps
-                clip: true
-                spacing: 2
-                currentIndex: launcher.selectedIndex
-                cacheBuffer: 400
-
-                delegate: Rectangle {
-                    width: appsList.width
-                    height: 42
-                    radius: 10
-                    color: index === launcher.selectedIndex ? Qt.rgba(modelData.isCmd ? Theme.accent.r : Theme.secondary.r, modelData.isCmd ? Theme.accent.g : Theme.secondary.g, modelData.isCmd ? Theme.accent.b : Theme.secondary.b, 0.15) : "transparent"
-
-                    RowLayout {
-                        anchors.fill: parent
-                        anchors.leftMargin: 10
-                        anchors.rightMargin: 10
-                        spacing: 10
-
-                        Rectangle {
-                            Layout.preferredWidth: 28
-                            Layout.preferredHeight: 28
-                            radius: 6
-                            color: Qt.rgba(modelData.isCmd ? Theme.accent.r : Theme.magenta.r, modelData.isCmd ? Theme.accent.g : Theme.magenta.g, modelData.isCmd ? Theme.accent.b : Theme.magenta.b, 0.1)
-
-                            Image {
-                                id: appIcon
-                                anchors.centerIn: parent
-                                width: 20
-                                height: 20
-                                source: modelData.icon ? "image://icon/" + modelData.icon : ""
-                                sourceSize: Qt.size(20, 20)
-                                visible: status === Image.Ready
-                                asynchronous: true
-                            }
-
-                            Text {
-                                anchors.centerIn: parent
-                                text: modelData.isCmd ? "\uf120" : "\uf135"
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 12
-                                color: modelData.isCmd ? Theme.accent : Theme.magenta
-                                visible: appIcon.status !== Image.Ready
-                            }
-                        }
-
-                        ColumnLayout {
-                            Layout.fillWidth: true
-                            spacing: 0
-
-                            Text {
-                                Layout.fillWidth: true
-                                text: modelData.name
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 13
-                                color: index === launcher.selectedIndex ? (modelData.isCmd ? Theme.accent : Theme.secondary) : Theme.foreground
-                                elide: Text.ElideRight
-                            }
-
-                            Text {
-                                visible: modelData.isCmd
-                                text: modelData.exec
-                                font.family: Theme.fontFamily
-                                font.pixelSize: 10
-                                color: Theme.muted
-                            }
-                        }
-
-                        Text {
-                            text: modelData.isCmd ? "\uf0e7" : "\uf054"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 10
-                            color: Theme.muted
-                            visible: index === launcher.selectedIndex
-                        }
+                    Text {
+                        text: "esc"
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 10
+                        color: Theme.muted
+                        opacity: 0.6
                     }
-
-                    MouseArea {
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        cursorShape: Qt.PointingHandCursor
-                        onClicked: launcher.launchApp(modelData.exec)
-                        onEntered: launcher.selectedIndex = index
-                    }
-                }
-            }
-
-            Row {
-                Layout.alignment: Qt.AlignRight
-                spacing: 16
-
-                Row {
-                    spacing: 6
-                    Rectangle {
-                        width: 18; height: 18; radius: 4
-                        color: Qt.rgba(1, 1, 1, 0.1)
-                        Text {
-                            anchors.centerIn: parent
-                            text: "↑↓"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 8
-                            color: Theme.muted
-                        }
-                    }
-                    Text { text: "nav"; font.family: Theme.fontFamily; font.pixelSize: 10; color: Theme.muted; anchors.verticalCenter: parent.verticalCenter }
-                }
-
-                Row {
-                    spacing: 6
-                    Rectangle {
-                        width: 28; height: 18; radius: 4
-                        color: Qt.rgba(1, 1, 1, 0.1)
-                        Text {
-                            anchors.centerIn: parent
-                            text: "esc"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 8
-                            color: Theme.muted
-                        }
-                    }
-                    Text { text: "close"; font.family: Theme.fontFamily; font.pixelSize: 10; color: Theme.muted; anchors.verticalCenter: parent.verticalCenter }
-                }
-
-                Row {
-                    spacing: 6
-                    Rectangle {
-                        width: 18; height: 18; radius: 4
-                        color: Qt.rgba(Theme.secondary.r, Theme.secondary.g, Theme.secondary.b, 0.2)
-                        Text {
-                            anchors.centerIn: parent
-                            text: "↵"
-                            font.family: Theme.fontFamily
-                            font.pixelSize: 10
-                            color: Theme.secondary
-                        }
-                    }
-                    Text { text: "launch"; font.family: Theme.fontFamily; font.pixelSize: 10; color: Theme.muted; anchors.verticalCenter: parent.verticalCenter }
                 }
             }
         }

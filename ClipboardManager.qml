@@ -106,7 +106,16 @@ PanelWindow {
         radius: 16
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Qt.rgba(Theme.magenta.r, Theme.magenta.g, Theme.magenta.b, 0.3)
+        border.color: Theme.border
+
+        layer.enabled: true
+        layer.smooth: true
+
+        scale: clipboard.visible ? 1.0 : 0.96
+        opacity: clipboard.visible ? 1.0 : 0
+
+        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
+        Behavior on opacity { NumberAnimation { duration: 100 } }
 
         ColumnLayout {
             anchors.fill: parent
@@ -117,9 +126,9 @@ PanelWindow {
                 Layout.fillWidth: true
                 Layout.preferredHeight: 44
                 radius: 22
-                color: Qt.rgba(Theme.magenta.r, Theme.magenta.g, Theme.magenta.b, 0.1)
+                color: Qt.rgba(Theme.magenta.r, Theme.magenta.g, Theme.magenta.b, 0.08)
                 border.width: 1
-                border.color: Qt.rgba(Theme.magenta.r, Theme.magenta.g, Theme.magenta.b, 0.2)
+                border.color: Theme.border
 
                 RowLayout {
                     anchors.fill: parent
@@ -141,7 +150,7 @@ PanelWindow {
                         font.pixelSize: 14
                         color: Theme.foreground
                         selectionColor: Theme.magenta
-                        selectedTextColor: "#ffffff"
+                        selectedTextColor: Theme.background
                         clip: true
 
                         Text {
@@ -204,7 +213,7 @@ PanelWindow {
                     width: clipList.width
                     height: 48
                     radius: 10
-                    color: index === clipboard.selectedIndex ? Qt.rgba(Theme.magenta.r, Theme.magenta.g, Theme.magenta.b, 0.15) : "transparent"
+                    color: index === clipboard.selectedIndex ? Qt.rgba(Theme.magenta.r, Theme.magenta.g, Theme.magenta.b, 0.12) : "transparent"
 
                     RowLayout {
                         anchors.fill: parent

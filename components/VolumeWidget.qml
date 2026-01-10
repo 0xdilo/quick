@@ -7,13 +7,13 @@ Rectangle {
     implicitWidth: volRow.implicitWidth + 18
     implicitHeight: 28
     radius: 14
-    color: volMouse.containsMouse ? Qt.rgba(theme.lavender.r, theme.lavender.g, theme.lavender.b, 0.15) : "transparent"
+    color: volMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
 
     property int vol: 0
     property bool muted: false
 
     Timer {
-        interval: 500
+        interval: 2000
         running: true
         repeat: true
         triggeredOnStart: true
@@ -55,7 +55,7 @@ Rectangle {
             text: muted ? "\uf00d" : (vol < 30 ? "\uf026" : (vol < 70 ? "\uf027" : "\uf028"))
             font.family: theme.font
             font.pixelSize: 18
-            color: muted ? theme.textMuted : theme.lavender
+            color: muted ? theme.textMuted : theme.icon
             anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -64,7 +64,7 @@ Rectangle {
             font.family: theme.font
             font.pixelSize: 13
             font.weight: Font.Medium
-            color: muted ? theme.textMuted : (volMouse.containsMouse ? theme.lavender : theme.text)
+            color: muted ? theme.textMuted : (volMouse.containsMouse ? theme.iconHover : theme.text)
             anchors.verticalCenter: parent.verticalCenter
         }
     }

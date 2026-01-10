@@ -8,9 +8,9 @@ Rectangle {
     implicitWidth: netRow.implicitWidth + 16
     implicitHeight: 28
     radius: 14
-    color: netMouse.containsMouse ? Qt.rgba(theme.sky.r, theme.sky.g, theme.sky.b, 0.15) : "transparent"
+    color: netMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
 
-    Behavior on color { ColorAnimation { duration: 150 } }
+    Behavior on color { ColorAnimation { duration: 80 } }
 
     property string ssid: ""
     property string status: "disconnected"
@@ -52,11 +52,9 @@ Rectangle {
             text: status === "ethernet" ? "\uf6ff" : "\uf1eb"
             font.family: theme.font
             font.pixelSize: 16
-            color: status === "disconnected" ? theme.textMuted : theme.sky
+            color: status === "disconnected" ? theme.textMuted : theme.icon
             anchors.verticalCenter: parent.verticalCenter
 
-            scale: netMouse.containsMouse ? 1.1 : 1.0
-            Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutBack } }
         }
 
         Text {
@@ -64,11 +62,11 @@ Rectangle {
             font.family: theme.font
             font.pixelSize: 12
             font.weight: Font.Medium
-            color: netMouse.containsMouse ? theme.sky : theme.text
+            color: netMouse.containsMouse ? theme.iconHover : theme.text
             anchors.verticalCenter: parent.verticalCenter
             visible: ssid.length > 0 || status === "disconnected"
 
-            Behavior on color { ColorAnimation { duration: 150 } }
+            Behavior on color { ColorAnimation { duration: 80 } }
         }
     }
 

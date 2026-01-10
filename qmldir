@@ -3,3 +3,4 @@ Bar 1.0 Bar.qml
 Launcher 1.0 Launcher.qml
 ClipboardManager 1.0 ClipboardManager.qml
 ToolsMenu 1.0 ToolsMenu.qml
+ControlCenter 1.0 ControlCenter.qml
