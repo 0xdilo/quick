@@ -134,15 +134,24 @@ PanelWindow {
     Rectangle {
         id: container
         anchors.centerIn: parent
-        width: 420
-        height: 380
-        radius: 20
+        width: 440
+        height: 400
+        radius: 24
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Theme.border
+        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08)
 
         layer.enabled: true
         layer.smooth: true
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: "transparent"
+            border.width: 1
+            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04)
+            anchors.margins: 1
+        }
 
         scale: launcher.visible ? 1.0 : 0.95
         opacity: launcher.visible ? 1.0 : 0
@@ -191,23 +200,23 @@ PanelWindow {
                     delegate: Rectangle {
                         id: itemDelegate
                         width: appsList.width
-                        height: 52
-                        radius: 12
-                        color: index === launcher.selectedIndex ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
+                        height: 54
+                        radius: 14
+                        color: index === launcher.selectedIndex ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.08) : (itemMa.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04) : "transparent")
 
                         Behavior on color { CAnim {} }
 
                         RowLayout {
                             anchors.fill: parent
-                            anchors.leftMargin: 12
-                            anchors.rightMargin: 12
+                            anchors.leftMargin: 14
+                            anchors.rightMargin: 14
                             spacing: 14
 
                             Rectangle {
-                                Layout.preferredWidth: 36
-                                Layout.preferredHeight: 36
-                                radius: 10
-                                color: "transparent"
+                                Layout.preferredWidth: 38
+                                Layout.preferredHeight: 38
+                                radius: 12
+                                color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
 
                                 Image {
                                     id: appIcon
@@ -270,6 +279,7 @@ PanelWindow {
                         }
 
                         MouseArea {
+                            id: itemMa
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
@@ -282,11 +292,11 @@ PanelWindow {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 48
-                radius: 24
-                color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.8)
+                Layout.preferredHeight: 50
+                radius: 25
+                color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.6)
                 border.width: 1
-                border.color: searchInput.activeFocus ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.3) : Theme.border
+                border.color: searchInput.activeFocus ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.25) : Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
 
                 Behavior on border.color { CAnim {} }
 

@@ -101,15 +101,24 @@ PanelWindow {
 
     Rectangle {
         anchors.centerIn: parent
-        width: 520
-        height: 450
-        radius: 16
+        width: 540
+        height: 460
+        radius: 24
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Theme.border
+        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08)
 
         layer.enabled: true
         layer.smooth: true
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: "transparent"
+            border.width: 1
+            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04)
+            anchors.margins: 1
+        }
 
         scale: clipboard.visible ? 1.0 : 0.95
         opacity: clipboard.visible ? 1.0 : 0

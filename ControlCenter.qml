@@ -47,16 +47,25 @@ PanelWindow {
         id: container
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
-        anchors.topMargin: 60
-        width: 640
-        height: 400
-        radius: 20
+        anchors.topMargin: 50
+        width: 660
+        height: 420
+        radius: 24
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Theme.border
+        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08)
 
         layer.enabled: true
         layer.smooth: true
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: "transparent"
+            border.width: 1
+            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04)
+            anchors.margins: 1
+        }
 
         scale: control.visible ? 1.0 : 0.95
         opacity: control.visible ? 1.0 : 0
@@ -75,21 +84,21 @@ PanelWindow {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.preferredHeight: 52
+                Layout.preferredHeight: 56
                 color: "transparent"
 
                 RowLayout {
                     anchors.centerIn: parent
-                    spacing: 6
+                    spacing: 8
 
                     Repeater {
                         model: control.tabs
 
                         Rectangle {
-                            width: tabRow.implicitWidth + 24
-                            height: 36
-                            radius: 18
-                            color: control.currentTab === index ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : "transparent"
+                            width: tabRow.implicitWidth + 28
+                            height: 38
+                            radius: 19
+                            color: control.currentTab === index ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.12) : (tabMa.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.05) : "transparent")
 
                             Behavior on color { CAnim {} }
 
@@ -101,7 +110,7 @@ PanelWindow {
                                 Text {
                                     text: control.tabIcons[index]
                                     font.family: Theme.fontFamily
-                                    font.pixelSize: 13
+                                    font.pixelSize: 14
                                     color: control.currentTab === index ? Theme.accent : Theme.muted
                                     anchors.verticalCenter: parent.verticalCenter
                                 }
@@ -117,7 +126,9 @@ PanelWindow {
                             }
 
                             MouseArea {
+                                id: tabMa
                                 anchors.fill: parent
+                                hoverEnabled: true
                                 cursorShape: Qt.PointingHandCursor
                                 onClicked: control.currentTab = index
                             }
@@ -130,7 +141,7 @@ PanelWindow {
                     anchors.left: parent.left
                     anchors.right: parent.right
                     height: 1
-                    color: Theme.border
+                    color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
                 }
             }
 
@@ -662,10 +673,19 @@ PanelWindow {
     }
 
     component Card: Rectangle {
-        color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.6)
-        radius: 14
+        color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.7)
+        radius: 16
         border.width: 1
-        border.color: Theme.border
+        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: "transparent"
+            border.width: 1
+            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.03)
+            anchors.margins: 1
+        }
     }
 
     component MediaBtn: Rectangle {

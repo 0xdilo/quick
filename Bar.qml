@@ -63,21 +63,21 @@ PanelWindow {
     Rectangle {
         id: barBg
         anchors.fill: parent
-        color: Theme.bgAlpha80
+        color: Theme.bgAlpha90
 
         Rectangle {
             anchors.left: parent.left
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: 1
-            color: Theme.border
+            color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
         }
 
         RowLayout {
             anchors.fill: parent
-            anchors.leftMargin: 16
-            anchors.rightMargin: 16
-            spacing: 12
+            anchors.leftMargin: 18
+            anchors.rightMargin: 18
+            spacing: 14
 
             RowLayout {
                 spacing: 10

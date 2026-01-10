@@ -224,15 +224,24 @@ PanelWindow {
 
     Rectangle {
         anchors.centerIn: parent
-        width: 380
-        height: currentMode === "main" ? 300 : 260
-        radius: 16
+        width: 400
+        height: currentMode === "main" ? 320 : 280
+        radius: 24
         color: Theme.bgAlpha90
         border.width: 1
-        border.color: Theme.border
+        border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08)
 
         layer.enabled: true
         layer.smooth: true
+
+        Rectangle {
+            anchors.fill: parent
+            radius: parent.radius
+            color: "transparent"
+            border.width: 1
+            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04)
+            anchors.margins: 1
+        }
 
         scale: root.visible ? 1.0 : 0.95
         opacity: root.visible ? 1.0 : 0
