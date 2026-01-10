@@ -58,12 +58,12 @@ PanelWindow {
         layer.enabled: true
         layer.smooth: true
 
-        scale: control.visible ? 1.0 : 0.96
+        scale: control.visible ? 1.0 : 0.95
         opacity: control.visible ? 1.0 : 0
         transformOrigin: Item.Top
 
-        Behavior on scale { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
-        Behavior on opacity { NumberAnimation { duration: 120 } }
+        Behavior on scale { Anim {} }
+        Behavior on opacity { Anim { duration: 100 } }
 
         Keys.onPressed: event => {
             if (event.key === Qt.Key_Escape) control.hide()
@@ -91,7 +91,7 @@ PanelWindow {
                             radius: 18
                             color: control.currentTab === index ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : "transparent"
 
-                            Behavior on color { ColorAnimation { duration: 80 } }
+                            Behavior on color { CAnim {} }
 
                             Row {
                                 id: tabRow
@@ -679,7 +679,7 @@ PanelWindow {
         radius: size / 2
         color: primary ? Theme.accent : (btnMa.containsMouse ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent")
 
-        Behavior on color { ColorAnimation { duration: 80 } }
+        Behavior on color { CAnim {} }
 
         Text {
             anchors.centerIn: parent
@@ -750,7 +750,7 @@ PanelWindow {
                     radius: 2.5
                     color: barColor
 
-                    Behavior on width { NumberAnimation { duration: 200; easing.type: Easing.OutQuad } }
+                    Behavior on width { Anim {} }
                 }
             }
 
@@ -773,7 +773,7 @@ PanelWindow {
         radius: 10
         color: qaMa.containsMouse ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
 
-        Behavior on color { ColorAnimation { duration: 80 } }
+        Behavior on color { CAnim {} }
 
         ColumnLayout {
             anchors.centerIn: parent

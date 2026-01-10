@@ -234,12 +234,12 @@ PanelWindow {
         layer.enabled: true
         layer.smooth: true
 
-        scale: root.visible ? 1.0 : 0.96
+        scale: root.visible ? 1.0 : 0.95
         opacity: root.visible ? 1.0 : 0
 
-        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
-        Behavior on opacity { NumberAnimation { duration: 100 } }
-        Behavior on height { NumberAnimation { duration: 150; easing.type: Easing.OutQuad } }
+        Behavior on scale { Anim {} }
+        Behavior on opacity { Anim { duration: 100 } }
+        Behavior on height { Anim {} }
 
         ColumnLayout {
             anchors.fill: parent

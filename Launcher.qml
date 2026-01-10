@@ -144,10 +144,10 @@ PanelWindow {
         layer.enabled: true
         layer.smooth: true
 
-        scale: launcher.visible ? 1.0 : 0.96
+        scale: launcher.visible ? 1.0 : 0.95
         opacity: launcher.visible ? 1.0 : 0
-        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
-        Behavior on opacity { NumberAnimation { duration: 100 } }
+        Behavior on scale { Anim {} }
+        Behavior on opacity { Anim { duration: 100 } }
 
         ColumnLayout {
             anchors.fill: parent
@@ -195,7 +195,7 @@ PanelWindow {
                         radius: 12
                         color: index === launcher.selectedIndex ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : "transparent"
 
-                        Behavior on color { ColorAnimation { duration: 80 } }
+                        Behavior on color { CAnim {} }
 
                         RowLayout {
                             anchors.fill: parent
@@ -288,7 +288,7 @@ PanelWindow {
                 border.width: 1
                 border.color: searchInput.activeFocus ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.3) : Theme.border
 
-                Behavior on border.color { ColorAnimation { duration: 80 } }
+                Behavior on border.color { CAnim {} }
 
                 RowLayout {
                     anchors.fill: parent

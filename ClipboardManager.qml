@@ -111,11 +111,11 @@ PanelWindow {
         layer.enabled: true
         layer.smooth: true
 
-        scale: clipboard.visible ? 1.0 : 0.96
+        scale: clipboard.visible ? 1.0 : 0.95
         opacity: clipboard.visible ? 1.0 : 0
 
-        Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutQuad } }
-        Behavior on opacity { NumberAnimation { duration: 100 } }
+        Behavior on scale { Anim {} }
+        Behavior on opacity { Anim { duration: 100 } }
 
         ColumnLayout {
             anchors.fill: parent

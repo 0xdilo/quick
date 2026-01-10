@@ -1,4 +1,6 @@
 singleton Theme 1.0 Theme.qml
+Anim 1.0 Anim.qml
+CAnim 1.0 CAnim.qml
 Bar 1.0 Bar.qml
 Launcher 1.0 Launcher.qml
 ClipboardManager 1.0 ClipboardManager.qml
