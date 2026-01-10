@@ -20,10 +20,10 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: 48
+    implicitHeight: 38
     color: "transparent"
     exclusionMode: ExclusionMode.Normal
-    WlrLayershell.exclusiveZone: 48
+    WlrLayershell.exclusiveZone: 38
 
     QtObject {
         id: theme
@@ -60,64 +60,52 @@ PanelWindow {
         property int radiusSm: 6
     }
 
-    Item {
+    Rectangle {
+        id: barBg
         anchors.fill: parent
-        anchors.topMargin: 6
-        anchors.leftMargin: 8
-        anchors.rightMargin: 8
-        anchors.bottomMargin: 6
+        color: Theme.bgAlpha90
 
         Rectangle {
-            id: barBg
-            anchors.fill: parent
-            radius: 16
-            color: Theme.bgAlpha90
-            border.width: 1
-            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08)
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            height: 1
+            color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
+        }
 
-            Rectangle {
-                anchors.fill: parent
-                anchors.margins: 1
-                radius: parent.radius - 1
-                color: "transparent"
-                border.width: 1
-                border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04)
-            }
+        RowLayout {
+            anchors.fill: parent
+            anchors.leftMargin: 16
+            anchors.rightMargin: 16
+            spacing: 12
 
             RowLayout {
-                anchors.fill: parent
-                anchors.leftMargin: 16
-                anchors.rightMargin: 16
-                spacing: 12
+                spacing: 8
+                LogoWidget { onClicked: bar.launcherRequested() }
+                ClockWidget { onClicked: bar.controlCenterRequested() }
+                TrayWidget {}
+            }
 
-                RowLayout {
-                    spacing: 8
-                    LogoWidget { onClicked: bar.launcherRequested() }
-                    ClockWidget { onClicked: bar.controlCenterRequested() }
-                    TrayWidget {}
-                }
+            WindowTitle {
+                Layout.fillWidth: true
+                Layout.maximumWidth: 200
+            }
 
-                WindowTitle {
-                    Layout.fillWidth: true
-                    Layout.maximumWidth: 200
-                }
+            Item { Layout.fillWidth: true }
 
-                Item { Layout.fillWidth: true }
+            WorkspacesWidget {}
 
-                WorkspacesWidget {}
+            Item { Layout.fillWidth: true }
 
-                Item { Layout.fillWidth: true }
+            RowLayout {
+                spacing: 4
 
-                RowLayout {
-                    spacing: 4
-
-                    SystemWidget {}
-                    NetworkWidget {}
-                    BluetoothWidget {}
-                    MediaWidget {}
-                    VolumeWidget {}
-                    BatteryWidget {}
-                }
+                SystemWidget {}
+                NetworkWidget {}
+                BluetoothWidget {}
+                MediaWidget {}
+                VolumeWidget {}
+                BatteryWidget {}
             }
         }
     }
