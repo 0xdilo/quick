@@ -20,10 +20,10 @@ PanelWindow {
         right: true
     }
 
-    implicitHeight: 38
+    implicitHeight: 48
     color: "transparent"
     exclusionMode: ExclusionMode.Normal
-    WlrLayershell.exclusiveZone: 38
+    WlrLayershell.exclusiveZone: 48
 
     QtObject {
         id: theme
@@ -35,7 +35,7 @@ PanelWindow {
 
         property color accent: Theme.accent
         property color accentSoft: Theme.secondary
-        property color icon: Theme.secondary
+        property color icon: Theme.muted
         property color iconHover: Theme.accent
 
         property color pink: Theme.accent
@@ -52,60 +52,72 @@ PanelWindow {
         property int fontSize: 13
         property int fontSizeLg: 15
         property int fontSizeXl: 18
-        property int fontSizeIcon: 18
-        property int fontSizeIconLg: 20
+        property int fontSizeIcon: 16
+        property int fontSizeIconLg: 18
 
-        property int radius: 12
-        property int radiusMd: 8
+        property int radius: 14
+        property int radiusMd: 10
         property int radiusSm: 6
     }
 
-    Rectangle {
-        id: barBg
+    Item {
         anchors.fill: parent
-        color: Theme.bgAlpha90
+        anchors.topMargin: 6
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+        anchors.bottomMargin: 6
 
         Rectangle {
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            height: 1
-            color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
-        }
-
-        RowLayout {
+            id: barBg
             anchors.fill: parent
-            anchors.leftMargin: 18
-            anchors.rightMargin: 18
-            spacing: 14
+            radius: 16
+            color: Theme.bgAlpha90
+            border.width: 1
+            border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.08)
 
-            RowLayout {
-                spacing: 10
-                LogoWidget { onClicked: bar.launcherRequested() }
-                ClockWidget { onClicked: bar.controlCenterRequested() }
-                TrayWidget {}
+            Rectangle {
+                anchors.fill: parent
+                anchors.margins: 1
+                radius: parent.radius - 1
+                color: "transparent"
+                border.width: 1
+                border.color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.04)
             }
 
-            WindowTitle {
-                Layout.fillWidth: true
-                Layout.maximumWidth: 220
-            }
-
-            Item { Layout.fillWidth: true }
-
-            WorkspacesWidget {}
-
-            Item { Layout.fillWidth: true }
-
             RowLayout {
-                spacing: 6
+                anchors.fill: parent
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
+                spacing: 12
 
-                SystemWidget {}
-                NetworkWidget {}
-                BluetoothWidget {}
-                MediaWidget {}
-                VolumeWidget {}
-                BatteryWidget {}
+                RowLayout {
+                    spacing: 8
+                    LogoWidget { onClicked: bar.launcherRequested() }
+                    ClockWidget { onClicked: bar.controlCenterRequested() }
+                    TrayWidget {}
+                }
+
+                WindowTitle {
+                    Layout.fillWidth: true
+                    Layout.maximumWidth: 200
+                }
+
+                Item { Layout.fillWidth: true }
+
+                WorkspacesWidget {}
+
+                Item { Layout.fillWidth: true }
+
+                RowLayout {
+                    spacing: 4
+
+                    SystemWidget {}
+                    NetworkWidget {}
+                    BluetoothWidget {}
+                    MediaWidget {}
+                    VolumeWidget {}
+                    BatteryWidget {}
+                }
             }
         }
     }

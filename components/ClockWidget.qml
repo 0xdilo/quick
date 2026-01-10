@@ -3,10 +3,12 @@ import QtQuick.Layouts
 
 Rectangle {
     id: root
-    implicitWidth: clockRow.implicitWidth + 20
-    implicitHeight: 32
-    radius: 16
-    color: clockMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
+    implicitWidth: clockRow.implicitWidth + 22
+    implicitHeight: 30
+    radius: 15
+    color: clockMouse.containsMouse ? Qt.rgba(theme.accent.r, theme.accent.g, theme.accent.b, 0.12) : "transparent"
+
+    Behavior on color { CAnim {} }
 
     signal clicked()
 
@@ -18,9 +20,11 @@ Rectangle {
         Text {
             text: "󰥔"
             font.family: theme.font
-            font.pixelSize: 18
-            color: theme.icon
+            font.pixelSize: 16
+            color: clockMouse.containsMouse ? theme.accent : theme.icon
             anchors.verticalCenter: parent.verticalCenter
+
+            Behavior on color { CAnim {} }
         }
 
         Column {
