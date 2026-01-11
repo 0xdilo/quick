@@ -10,8 +10,11 @@ Rectangle {
     border.width: 1
     border.color: powerMouse.containsMouse ? theme.pink : Qt.rgba(theme.pink.r, theme.pink.g, theme.pink.b, 0.3)
 
-    Behavior on color { ColorAnimation { duration: 100; easing.type: Easing.OutQuad } }
-    Behavior on border.color { ColorAnimation { duration: 100; easing.type: Easing.OutQuad } }
+    scale: powerMouse.pressed ? 0.9 : 1.0
+
+    Behavior on color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
+    Behavior on border.color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
+    Behavior on scale { NumberAnimation { duration: 60; easing.type: Easing.OutCubic } }
 
     Text {
         anchors.centerIn: parent
@@ -20,8 +23,7 @@ Rectangle {
         font.weight: Font.Medium
         color: powerMouse.containsMouse ? theme.pink : theme.pinkSoft
 
-        Behavior on color { ColorAnimation { duration: 100; easing.type: Easing.OutQuad } }
-
+        Behavior on color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
     }
 
     MouseArea {

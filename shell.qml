@@ -18,12 +18,18 @@ ShellRoot {
         function toggleClipboardIpc() { shell.toggleClipboard() }
         function toggleToolsIpc() { shell.toggleTools() }
         function toggleControlCenterIpc() { shell.toggleControlCenter() }
+        function toggleBarPositionIpc() { shell.toggleBarPosition() }
     }
 
     property bool launcherOpen: false
     property bool clipboardOpen: false
     property bool toolsOpen: false
     property bool controlCenterOpen: false
+    property string barPosition: "top"
+
+    function toggleBarPosition() {
+        barPosition = barPosition === "top" ? "left" : "top"
+    }
 
     Variants {
         model: Quickshell.screens
@@ -116,6 +122,7 @@ ShellRoot {
             Bar {
                 required property var modelData
                 targetScreen: modelData
+                barPosition: shell.barPosition
                 onLauncherRequested: shell.toggleLauncher()
                 onControlCenterRequested: shell.toggleControlCenter()
             }
@@ -129,19 +136,21 @@ ShellRoot {
     property int lastVolume: -1
     property int lastBrightness: -1
 
-    Timer {
-        id: pollTimer
-        interval: 250
+    Process {
+        id: volumeSubscribe
         running: true
-        repeat: true
-        onTriggered: {
-            checkVolumeProc.running = true
-            checkBrightnessProc.running = true
+        command: ["pactl", "subscribe"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (data.includes("sink") && data.includes("change")) {
+                    getVolumeProc.running = true
+                }
+            }
         }
     }
 
     Process {
-        id: checkVolumeProc
+        id: getVolumeProc
         command: ["sh", "-c", "pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null | grep -oE '[0-9]+%' | head -1 | tr -d '%'"]
         stdout: SplitParser {
             onRead: data => {
@@ -157,22 +166,28 @@ ShellRoot {
         }
     }
 
+    property int maxBrightness: 30720
+
     Process {
-        id: checkBrightnessProc
-        command: ["sh", "-c", "brightnessctl -m 2>/dev/null | cut -d',' -f4 | tr -d '%'"]
+        id: brightnessWatch
+        running: true
+        command: ["sh", "-c", "cat /sys/class/backlight/intel_backlight/brightness && while inotifywait -qq -e modify /sys/class/backlight/intel_backlight/brightness; do cat /sys/class/backlight/intel_backlight/brightness; done"]
         stdout: SplitParser {
             onRead: data => {
-                var newBrightness = parseInt(data) || 0
-                if (newBrightness !== shell.lastBrightness && shell.lastBrightness !== -1) {
-                    shell.osdBrightness = newBrightness
+                var current = parseInt(data) || 0
+                var percent = Math.round(current * 100 / shell.maxBrightness)
+                if (percent !== shell.lastBrightness && shell.lastBrightness !== -1) {
+                    shell.osdBrightness = percent
                     shell.osdType = "brightness"
                     shell.osdVisible = true
                     hideTimer.restart()
                 }
-                shell.lastBrightness = newBrightness
+                shell.lastBrightness = percent
             }
         }
     }
+
+    Component.onCompleted: getVolumeProc.running = true
 
     IpcHandler {
         target: "osd"
@@ -225,6 +240,8 @@ ShellRoot {
                     color: Theme.background
                     border.width: 1
                     border.color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.4)
+                    layer.enabled: true
+                    layer.smooth: true
 
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.bottom: parent.bottom
@@ -233,7 +250,7 @@ ShellRoot {
                     opacity: osdWindow.shouldShow ? 1 : 0
 
                     Behavior on opacity {
-                        NumberAnimation { duration: 100 }
+                        NumberAnimation { duration: 60; easing.type: Easing.OutCubic }
                     }
 
                     property bool isVolume: shell.osdType === "volume"
@@ -274,32 +291,10 @@ ShellRoot {
                                 width: parent.width * osdCard.value / 100
                                 height: parent.height
                                 radius: 3
+                                color: Theme.accent
 
-                                gradient: Gradient {
-                                    orientation: Gradient.Horizontal
-                                    GradientStop { position: 0.0; color: Theme.secondary }
-                                    GradientStop { position: 0.5; color: Theme.accent }
-                                    GradientStop { position: 1.0; color: Qt.lighter(Theme.accent, 1.2) }
-                                }
-
-                                                            }
-
-                            Rectangle {
-                                width: barFill.width
-                                height: parent.height + 8
-                                y: -4
-                                radius: 6
-                                visible: osdCard.value > 0
-                                opacity: 0.3
-
-                                gradient: Gradient {
-                                    orientation: Gradient.Horizontal
-                                    GradientStop { position: 0.0; color: "transparent" }
-                                    GradientStop { position: 0.7; color: Theme.accent }
-                                    GradientStop { position: 1.0; color: Theme.accent }
-                                }
-
-                                                            }
+                                Behavior on width { NumberAnimation { duration: 50; easing.type: Easing.OutCubic } }
+                            }
                         }
 
                         Text {
@@ -332,5 +327,39 @@ ShellRoot {
 
     function toggleControlCenter() {
         shell.controlCenterOpen = !shell.controlCenterOpen
+    }
+
+    property var dnsRequests: []
+    property bool dnsMonitoring: false
+
+    function startDnsMonitor() {
+        dnsRequests = []
+        dnsMonitoring = true
+        dnsProc.running = true
+    }
+
+    function stopDnsMonitor() {
+        dnsMonitoring = false
+        dnsProc.running = false
+    }
+
+    Process {
+        id: dnsProc
+        command: ["tshark", "-l", "-i", "any", "-Y", "dns.flags.response == 0", "-T", "fields", "-e", "dns.qry.name"]
+        stdout: SplitParser {
+            onRead: data => {
+                var domain = data.trim()
+                if (domain && domain.length > 0) {
+                    var entry = {
+                        time: new Date().toLocaleTimeString(Qt.locale(), "HH:mm:ss"),
+                        domain: domain
+                    }
+                    var list = shell.dnsRequests.slice()
+                    list.unshift(entry)
+                    if (list.length > 100) list.pop()
+                    shell.dnsRequests = list
+                }
+            }
+        }
     }
 }

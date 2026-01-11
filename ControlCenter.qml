@@ -25,8 +25,8 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
 
     property int currentTab: 0
-    property var tabs: ["Dashboard", "Media", "Performance"]
-    property var tabIcons: ["\uf0e4", "\uf001", "\uf201"]
+    property var tabs: ["Dashboard", "Media", "Usage", "Power", "Network"]
+    property var tabIcons: ["\uf0e4", "\uf001", "\uf201", "\uf0e7", "\uf0ac"]
 
     function show() {
         visible = true
@@ -156,7 +156,9 @@ PanelWindow {
                         switch(control.currentTab) {
                             case 0: return dashboardTab
                             case 1: return mediaTab
-                            case 2: return performanceTab
+                            case 2: return usageTab
+                            case 3: return powerTab
+                            case 4: return networkTab
                             default: return dashboardTab
                         }
                     }
@@ -245,7 +247,7 @@ PanelWindow {
                             id: clockHour
                             text: "00"
                             font.family: Theme.fontFamily
-                            font.pixelSize: 42
+                            font.pixelSize: 32
                             font.weight: Font.Bold
                             color: Theme.foreground
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -266,10 +268,10 @@ PanelWindow {
 
                         Row {
                             anchors.horizontalCenter: parent.horizontalCenter
-                            spacing: 4
+                            spacing: 3
                             Repeater {
                                 model: 3
-                                Rectangle { width: 5; height: 5; radius: 2.5; color: Theme.accent }
+                                Rectangle { width: 4; height: 4; radius: 2; color: Theme.accent }
                             }
                         }
 
@@ -277,7 +279,7 @@ PanelWindow {
                             id: clockMin
                             text: "00"
                             font.family: Theme.fontFamily
-                            font.pixelSize: 42
+                            font.pixelSize: 32
                             font.weight: Font.Bold
                             color: Theme.foreground
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -287,12 +289,13 @@ PanelWindow {
                             id: clockDate
                             text: "..."
                             font.family: Theme.fontFamily
-                            font.pixelSize: 11
+                            font.pixelSize: 10
                             color: Theme.muted
                             anchors.horizontalCenter: parent.horizontalCenter
                         }
                     }
                 }
+
             }
 
             Column {
@@ -556,10 +559,10 @@ PanelWindow {
     }
 
     Component {
-        id: performanceTab
+        id: usageTab
 
         Item {
-            id: perfRoot
+            id: usageRoot
             anchors.fill: parent
 
             property int cpuVal: 0
@@ -582,7 +585,7 @@ PanelWindow {
             Process {
                 id: cpuProc
                 command: ["sh", "-c", "awk '/^cpu / {print int(($2+$4)*100/($2+$4+$5))}' /proc/stat"]
-                stdout: SplitParser { onRead: data => perfRoot.cpuVal = parseInt(data) || 0 }
+                stdout: SplitParser { onRead: data => usageRoot.cpuVal = parseInt(data) || 0 }
             }
 
             Process {
@@ -591,8 +594,8 @@ PanelWindow {
                 stdout: SplitParser {
                     onRead: data => {
                         var parts = data.split(" ")
-                        perfRoot.memVal = parseFloat(parts[0]) || 0
-                        perfRoot.memTotal = parseFloat(parts[1]) || 16
+                        usageRoot.memVal = parseFloat(parts[0]) || 0
+                        usageRoot.memTotal = parseFloat(parts[1]) || 16
                     }
                 }
             }
@@ -600,7 +603,7 @@ PanelWindow {
             Process {
                 id: tempProc
                 command: ["sh", "-c", "sensors 2>/dev/null | grep -E 'Package id|Tctl|Core 0:' | head -1 | grep -oE '[0-9]+\\.[0-9]+' | head -1 | cut -d. -f1"]
-                stdout: SplitParser { onRead: data => perfRoot.tempVal = parseInt(data) || 0 }
+                stdout: SplitParser { onRead: data => usageRoot.tempVal = parseInt(data) || 0 }
             }
 
             Grid {
@@ -613,7 +616,7 @@ PanelWindow {
                     height: (parent.height - 12) / 2
                     title: "CPU"
                     icon: "\uf2db"
-                    value: perfRoot.cpuVal
+                    value: usageRoot.cpuVal
                     suffix: "%"
                     barColor: Theme.accent
                 }
@@ -623,9 +626,9 @@ PanelWindow {
                     height: (parent.height - 12) / 2
                     title: "Memory"
                     icon: "\uf538"
-                    value: perfRoot.memTotal > 0 ? Math.round(perfRoot.memVal / perfRoot.memTotal * 100) : 0
+                    value: usageRoot.memTotal > 0 ? Math.round(usageRoot.memVal / usageRoot.memTotal * 100) : 0
                     suffix: "%"
-                    subtitle: perfRoot.memVal.toFixed(1) + " / " + perfRoot.memTotal.toFixed(0) + " GB"
+                    subtitle: usageRoot.memVal.toFixed(1) + " / " + usageRoot.memTotal.toFixed(0) + " GB"
                     barColor: Theme.secondary
                 }
 
@@ -634,9 +637,9 @@ PanelWindow {
                     height: (parent.height - 12) / 2
                     title: "Temperature"
                     icon: "\uf2c9"
-                    value: perfRoot.tempVal
+                    value: usageRoot.tempVal
                     suffix: "°C"
-                    barColor: perfRoot.tempVal > 70 ? Theme.error : Theme.accent
+                    barColor: usageRoot.tempVal > 70 ? Theme.error : Theme.accent
                 }
 
                 Card {
@@ -644,27 +647,224 @@ PanelWindow {
                     height: (parent.height - 12) / 2
 
                     Column {
-                        anchors.fill: parent
-                        anchors.margins: 14
-                        spacing: 10
+                        anchors.centerIn: parent
+                        spacing: 8
 
                         Text {
-                            text: "Quick Actions"
+                            text: "\uf17c"
                             font.family: Theme.fontFamily
-                            font.pixelSize: 12
-                            font.weight: Font.Medium
-                            color: Theme.foreground
+                            font.pixelSize: 32
+                            color: Theme.accent
+                            anchors.horizontalCenter: parent.horizontalCenter
                         }
 
-                        Row {
-                            width: parent.width
-                            height: 54
-                            spacing: 8
+                        Text {
+                            text: "Arch Linux"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 14
+                            font.weight: Font.Medium
+                            color: Theme.foreground
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
 
-                            QuickAction { width: (parent.width - 24) / 4; icon: "\uf011"; label: "Power"; onClicked: Hyprland.dispatch("exec systemctl poweroff") }
-                            QuickAction { width: (parent.width - 24) / 4; icon: "\uf01e"; label: "Reboot"; onClicked: Hyprland.dispatch("exec systemctl reboot") }
-                            QuickAction { width: (parent.width - 24) / 4; icon: "\uf023"; label: "Lock"; onClicked: Hyprland.dispatch("exec hyprlock") }
-                            QuickAction { width: (parent.width - 24) / 4; icon: "\uf186"; label: "Sleep"; onClicked: Hyprland.dispatch("exec systemctl suspend") }
+                        Text {
+                            text: "Hyprland"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 11
+                            color: Theme.muted
+                            anchors.horizontalCenter: parent.horizontalCenter
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Component {
+        id: powerTab
+
+        RowLayout {
+            anchors.fill: parent
+            spacing: 12
+
+            Card {
+                id: powerCard
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                property string currentMode: "powersave"
+
+                Component.onCompleted: getModeProc.running = true
+
+                Process {
+                    id: getModeProc
+                    command: ["cat", "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor"]
+                    stdout: SplitParser { onRead: data => powerCard.currentMode = data.trim() }
+                }
+
+                Process {
+                    id: setModeProc
+                    property string mode: "powersave"
+                    command: ["pkexec", "sh", "-c", "echo " + mode + " | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor"]
+                }
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 20
+                    spacing: 16
+
+                    Text {
+                        text: "Power Mode"
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 14
+                        font.weight: Font.Medium
+                        color: Theme.foreground
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 100
+                            radius: 12
+                            color: powerCard.currentMode === "powersave" ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
+                            border.width: powerCard.currentMode === "powersave" ? 2 : 0
+                            border.color: Theme.accent
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: 8
+
+                                Text {
+                                    text: "\uf06c"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 28
+                                    color: powerCard.currentMode === "powersave" ? Theme.accent : Theme.muted
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: "Power Saver"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                    font.weight: Font.Medium
+                                    color: powerCard.currentMode === "powersave" ? Theme.foreground : Theme.muted
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    setModeProc.mode = "powersave"
+                                    setModeProc.running = true
+                                    powerCard.currentMode = "powersave"
+                                }
+                            }
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            height: 100
+                            radius: 12
+                            color: powerCard.currentMode === "performance" ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
+                            border.width: powerCard.currentMode === "performance" ? 2 : 0
+                            border.color: Theme.accent
+
+                            Column {
+                                anchors.centerIn: parent
+                                spacing: 8
+
+                                Text {
+                                    text: "\uf0e7"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 28
+                                    color: powerCard.currentMode === "performance" ? Theme.accent : Theme.muted
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+
+                                Text {
+                                    text: "Performance"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 12
+                                    font.weight: Font.Medium
+                                    color: powerCard.currentMode === "performance" ? Theme.foreground : Theme.muted
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                }
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    setModeProc.mode = "performance"
+                                    setModeProc.running = true
+                                    powerCard.currentMode = "performance"
+                                }
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillHeight: true }
+
+                    Text {
+                        text: "Quick Actions"
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 14
+                        font.weight: Font.Medium
+                        color: Theme.foreground
+                    }
+
+                    RowLayout {
+                        Layout.fillWidth: true
+                        spacing: 12
+
+                        Repeater {
+                            model: [
+                                { icon: "\uf011", label: "Shutdown", cmd: "systemctl poweroff" },
+                                { icon: "\uf01e", label: "Reboot", cmd: "systemctl reboot" },
+                                { icon: "\uf023", label: "Lock", cmd: "hyprlock" },
+                                { icon: "\uf186", label: "Suspend", cmd: "systemctl suspend" }
+                            ]
+
+                            Rectangle {
+                                Layout.fillWidth: true
+                                height: 70
+                                radius: 10
+                                color: paMa.containsMouse ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1) : Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
+
+                                Column {
+                                    anchors.centerIn: parent
+                                    spacing: 6
+
+                                    Text {
+                                        text: modelData.icon
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 20
+                                        color: paMa.containsMouse ? Theme.accent : Theme.muted
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+
+                                    Text {
+                                        text: modelData.label
+                                        font.family: Theme.fontFamily
+                                        font.pixelSize: 10
+                                        color: Theme.muted
+                                        anchors.horizontalCenter: parent.horizontalCenter
+                                    }
+                                }
+
+                                MouseArea {
+                                    id: paMa
+                                    anchors.fill: parent
+                                    hoverEnabled: true
+                                    cursorShape: Qt.PointingHandCursor
+                                    onClicked: Hyprland.dispatch("exec " + modelData.cmd)
+                                }
+                            }
                         }
                     }
                 }
@@ -822,6 +1022,250 @@ PanelWindow {
             hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: parent.clicked()
+        }
+    }
+
+    component PowerModeBtn: Rectangle {
+        property string mode
+        property string label
+        property string icon
+        property bool active: false
+        signal clicked()
+
+        height: 36
+        radius: 8
+        color: active ? Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15) : (pmMa.containsMouse ? Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.05) : "transparent")
+        border.width: active ? 1 : 0
+        border.color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.3)
+
+        Behavior on color { CAnim {} }
+
+        Row {
+            anchors.centerIn: parent
+            spacing: 8
+
+            Text {
+                text: icon
+                font.family: Theme.fontFamily
+                font.pixelSize: 14
+                color: active ? Theme.accent : Theme.muted
+            }
+
+            Text {
+                text: label
+                font.family: Theme.fontFamily
+                font.pixelSize: 11
+                font.weight: active ? Font.Medium : Font.Normal
+                color: active ? Theme.foreground : Theme.muted
+            }
+        }
+
+        MouseArea {
+            id: pmMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: parent.clicked()
+        }
+    }
+
+    Component {
+        id: networkTab
+
+        RowLayout {
+            anchors.fill: parent
+            spacing: 12
+
+            Card {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 10
+
+                    RowLayout {
+                        Layout.fillWidth: true
+
+                        Text {
+                            text: "\uf0ac"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 16
+                            color: Theme.accent
+                        }
+
+                        Text {
+                            text: "DNS Monitor"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 13
+                            font.weight: Font.Medium
+                            color: Theme.foreground
+                        }
+
+                        Item { Layout.fillWidth: true }
+
+                        Rectangle {
+                            width: monitorBtn.implicitWidth + 20
+                            height: 28
+                            radius: 14
+                            color: shell.dnsMonitoring ? Qt.rgba(Theme.error.r, Theme.error.g, Theme.error.b, 0.15) : Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.15)
+
+                            Text {
+                                id: monitorBtn
+                                anchors.centerIn: parent
+                                text: shell.dnsMonitoring ? "Stop" : "Start"
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 11
+                                font.weight: Font.Medium
+                                color: shell.dnsMonitoring ? Theme.error : Theme.accent
+                            }
+
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.PointingHandCursor
+                                onClicked: {
+                                    if (shell.dnsMonitoring) shell.stopDnsMonitor()
+                                    else shell.startDnsMonitor()
+                                }
+                            }
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 1
+                        color: Qt.rgba(Theme.foreground.r, Theme.foreground.g, Theme.foreground.b, 0.06)
+                    }
+
+                    ListView {
+                        Layout.fillWidth: true
+                        Layout.fillHeight: true
+                        model: shell.dnsRequests
+                        clip: true
+                        spacing: 4
+
+                        delegate: Rectangle {
+                            width: ListView.view.width
+                            height: 32
+                            radius: 6
+                            color: Qt.rgba(Theme.surface.r, Theme.surface.g, Theme.surface.b, 0.5)
+
+                            RowLayout {
+                                anchors.fill: parent
+                                anchors.margins: 8
+                                spacing: 10
+
+                                Text {
+                                    text: modelData.time
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 10
+                                    color: Theme.muted
+                                }
+
+                                Text {
+                                    text: "\uf0ac"
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 10
+                                    color: Theme.accent
+                                }
+
+                                Text {
+                                    Layout.fillWidth: true
+                                    text: modelData.domain
+                                    font.family: Theme.fontFamily
+                                    font.pixelSize: 11
+                                    color: Theme.foreground
+                                    elide: Text.ElideRight
+                                }
+                            }
+                        }
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: shell.dnsMonitoring ? "Waiting for DNS requests..." : "Click Start to monitor DNS"
+                            font.family: Theme.fontFamily
+                            font.pixelSize: 12
+                            color: Theme.muted
+                            visible: parent.count === 0
+                        }
+                    }
+                }
+            }
+
+            Card {
+                Layout.preferredWidth: 200
+                Layout.fillHeight: true
+
+                ColumnLayout {
+                    anchors.fill: parent
+                    anchors.margins: 14
+                    spacing: 10
+
+                    Text {
+                        text: "Active Connections"
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 12
+                        font.weight: Font.Medium
+                        color: Theme.foreground
+                    }
+
+                    Timer {
+                        interval: 2000
+                        running: true
+                        repeat: true
+                        triggeredOnStart: true
+                        onTriggered: connProc.running = true
+                    }
+
+                    Process {
+                        id: connProc
+                        command: ["sh", "-c", "ss -tunp 2>/dev/null | grep ESTAB | wc -l"]
+                        stdout: SplitParser {
+                            onRead: data => connCount.text = (parseInt(data) || 0) + " established"
+                        }
+                    }
+
+                    Rectangle {
+                        Layout.fillWidth: true
+                        height: 60
+                        radius: 10
+                        color: Qt.rgba(Theme.accent.r, Theme.accent.g, Theme.accent.b, 0.1)
+
+                        Column {
+                            anchors.centerIn: parent
+                            spacing: 4
+
+                            Text {
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "\uf1e6"
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 20
+                                color: Theme.accent
+                            }
+
+                            Text {
+                                id: connCount
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                text: "..."
+                                font.family: Theme.fontFamily
+                                font.pixelSize: 11
+                                color: Theme.foreground
+                            }
+                        }
+                    }
+
+                    Item { Layout.fillHeight: true }
+
+                    Text {
+                        text: "Note: DNS monitoring\nrequires sudo access\nand persists when closed"
+                        font.family: Theme.fontFamily
+                        font.pixelSize: 10
+                        color: Theme.muted
+                        lineHeight: 1.3
+                    }
+                }
+            }
         }
     }
 

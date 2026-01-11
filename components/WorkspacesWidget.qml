@@ -1,62 +1,123 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell.Hyprland
 
 Item {
     id: root
-    implicitWidth: wsRow.implicitWidth + 12
-    implicitHeight: 30
+    property bool vertical: false
+
+    implicitWidth: vertical ? 30 : wsRow.implicitWidth + 12
+    implicitHeight: vertical ? wsCol.implicitHeight + 12 : 30
+
+    property var occupiedSet: ({})
+    property int activeWs: Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1
 
     property int maxWs: {
-        if (!Hyprland.focusedMonitor) return 5
         var max = 5
         var list = Hyprland.workspaces?.values ?? []
+        var newOccupied = {}
         for (var i = 0; i < list.length; i++) {
-            if (list[i].id > max) max = list[i].id
+            var ws = list[i]
+            if (ws.id > max) max = ws.id
+            if (ws.windows > 0) newOccupied[ws.id] = true
         }
-        var active = Hyprland.focusedMonitor?.activeWorkspace?.id ?? 1
-        if (active > max) max = active
+        if (activeWs > max) max = activeWs
+        occupiedSet = newOccupied
         return max
     }
 
     Row {
         id: wsRow
+        visible: !root.vertical
         anchors.centerIn: parent
         spacing: 4
 
         Repeater {
             model: root.maxWs
 
-            Item {
-                id: ws
+            Rectangle {
+                id: wsH
                 property int wsId: index + 1
-                property var focused: Hyprland.focusedMonitor?.activeWorkspace
-                property bool active: focused?.id === wsId
-                property bool occupied: {
-                    var list = Hyprland.workspaces?.values ?? []
-                    for (var i = 0; i < list.length; i++) {
-                        if (list[i].id === wsId && list[i].windows > 0) return true
-                    }
-                    return false
-                }
+                property bool active: root.activeWs === wsId
+                property bool occupied: !!root.occupiedSet[wsId]
 
                 width: 26
                 height: 26
+                radius: 13
+                color: wsMouse.containsMouse ? Qt.rgba(theme.pink.r, theme.pink.g, theme.pink.b, 0.15) : "transparent"
+                scale: wsMouse.pressed ? 0.9 : 1.0
+
+                Behavior on color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
+                Behavior on scale { NumberAnimation { duration: 60; easing.type: Easing.OutCubic } }
 
                 Text {
                     anchors.centerIn: parent
-                    text: active ? "\uf004" : (occupied ? "\uf004" : "\uf08a")
+                    text: wsH.active ? "\uf004" : (wsH.occupied ? "\uf004" : "\uf08a")
                     font.family: theme.font
                     font.pixelSize: 18
-                    color: active ? theme.pink : (occupied ? theme.pink : theme.pinkSoft)
-                    opacity: (active || occupied) ? 1.0 : 0.4
+                    color: wsH.active ? theme.pink : (wsH.occupied ? theme.pink : theme.pinkSoft)
+                    opacity: (wsH.active || wsH.occupied) ? 1.0 : 0.4
+                    scale: wsH.active ? 1.1 : 1.0
+
+                    Behavior on opacity { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
+                    Behavior on color { ColorAnimation { duration: 80; easing.type: Easing.OutCubic } }
                 }
 
                 MouseArea {
+                    id: wsMouse
                     anchors.fill: parent
                     hoverEnabled: true
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: Hyprland.dispatch("workspace " + ws.wsId)
+                    onClicked: Hyprland.dispatch("workspace " + wsH.wsId)
+                }
+            }
+        }
+    }
+
+    Column {
+        id: wsCol
+        visible: root.vertical
+        anchors.centerIn: parent
+        spacing: 2
+
+        Repeater {
+            model: root.maxWs
+
+            Rectangle {
+                id: wsV
+                property int wsId: index + 1
+                property bool active: root.activeWs === wsId
+                property bool occupied: !!root.occupiedSet[wsId]
+
+                width: 22
+                height: 22
+                radius: 11
+                color: wsMouseV.containsMouse ? Qt.rgba(theme.pink.r, theme.pink.g, theme.pink.b, 0.15) : "transparent"
+                scale: wsMouseV.pressed ? 0.9 : 1.0
+
+                Behavior on color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
+                Behavior on scale { NumberAnimation { duration: 60; easing.type: Easing.OutCubic } }
+
+                Text {
+                    anchors.centerIn: parent
+                    text: wsV.active ? "\uf004" : (wsV.occupied ? "\uf004" : "\uf08a")
+                    font.family: theme.font
+                    font.pixelSize: 14
+                    color: wsV.active ? theme.pink : (wsV.occupied ? theme.pink : theme.pinkSoft)
+                    opacity: (wsV.active || wsV.occupied) ? 1.0 : 0.4
+                    scale: wsV.active ? 1.1 : 1.0
+
+                    Behavior on opacity { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                    Behavior on scale { NumberAnimation { duration: 100; easing.type: Easing.OutBack } }
+                    Behavior on color { ColorAnimation { duration: 80; easing.type: Easing.OutCubic } }
+                }
+
+                MouseArea {
+                    id: wsMouseV
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: Hyprland.dispatch("workspace " + wsV.wsId)
                 }
             }
         }

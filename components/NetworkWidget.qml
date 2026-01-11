@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 import Quickshell.Io
 import Quickshell.Hyprland
 
@@ -10,37 +9,43 @@ Rectangle {
     radius: 14
     color: netMouse.containsMouse ? Qt.rgba(theme.icon.r, theme.icon.g, theme.icon.b, 0.1) : "transparent"
 
-    Behavior on color { ColorAnimation { duration: 100; easing.type: Easing.OutQuad } }
+    Behavior on color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
 
     property string ssid: ""
     property string status: "disconnected"
 
-    Timer {
-        interval: 8000
+    function parseNetLine(data) {
+        if (data.startsWith("wifi:connected:")) {
+            ssid = data.substring(15)
+            status = "wifi"
+        } else if (data.startsWith("ethernet:connected")) {
+            ssid = "Wired"
+            status = "ethernet"
+        }
+    }
+
+    Process {
+        id: netWatch
         running: true
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: netProc.running = true
+        command: ["sh", "-c", "nmcli -t -f type,state,connection dev 2>/dev/null | grep -v disconnected | head -1 && nmcli monitor 2>/dev/null"]
+        stdout: SplitParser {
+            onRead: data => {
+                if (data.startsWith("wifi:") || data.startsWith("ethernet:")) {
+                    parseNetLine(data)
+                } else if (data.includes("disconnected") || data.includes("Disconnecting")) {
+                    ssid = ""
+                    status = "disconnected"
+                } else if (data.includes("connected")) {
+                    netRefresh.running = true
+                }
+            }
+        }
     }
 
     Process {
-        id: netProc
-        command: ["sh", "-c", "nmcli -t -f active,ssid dev wifi 2>/dev/null | grep '^yes' | head -1 | cut -d: -f2"]
-        stdout: SplitParser {
-            onRead: data => { if (data && data.length > 0) { ssid = data; status = "wifi" } }
-        }
-        onExited: (code, st) => { if (!ssid) ethProc.running = true }
-    }
-
-    Process {
-        id: ethProc
-        command: ["sh", "-c", "nmcli -t -f type,state dev 2>/dev/null | grep '^ethernet:connected'"]
-        stdout: SplitParser {
-            onRead: data => { if (data) { status = "ethernet"; ssid = "Wired" } }
-        }
-        onExited: (code, st) => {
-            if (status !== "wifi" && status !== "ethernet") { status = "disconnected"; ssid = "" }
-        }
+        id: netRefresh
+        command: ["sh", "-c", "nmcli -t -f type,state,connection dev 2>/dev/null | grep connected | grep -v disconnected | head -1"]
+        stdout: SplitParser { onRead: data => parseNetLine(data) }
     }
 
     Row {
@@ -54,7 +59,6 @@ Rectangle {
             font.pixelSize: 16
             color: status === "disconnected" ? theme.textMuted : theme.icon
             anchors.verticalCenter: parent.verticalCenter
-
         }
 
         Text {
@@ -66,7 +70,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             visible: ssid.length > 0 || status === "disconnected"
 
-            Behavior on color { ColorAnimation { duration: 100; easing.type: Easing.OutQuad } }
+            Behavior on color { ColorAnimation { duration: 60; easing.type: Easing.OutCubic } }
         }
     }
 
@@ -76,5 +80,41 @@ Rectangle {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         onClicked: Hyprland.dispatch("exec nm-connection-editor")
+
+        onContainsMouseChanged: {
+            if (containsMouse) tooltipTimer.start()
+            else { tooltipTimer.stop(); tooltip.opacity = 0 }
+        }
+    }
+
+    Timer {
+        id: tooltipTimer
+        interval: 500
+        onTriggered: tooltip.opacity = 1
+    }
+
+    Rectangle {
+        id: tooltip
+        x: (parent.width - width) / 2
+        y: parent.height + 6
+        visible: opacity > 0
+        opacity: 0
+        width: tooltipText.implicitWidth + 14
+        height: 24
+        radius: 6
+        color: Qt.rgba(theme.bg.r, theme.bg.g, theme.bg.b, 0.95)
+        border.width: 1
+        border.color: Qt.rgba(theme.text.r, theme.text.g, theme.text.b, 0.08)
+
+        Text {
+            id: tooltipText
+            anchors.centerIn: parent
+            text: "Network Settings"
+            font.family: theme.font
+            font.pixelSize: 10
+            color: theme.text
+        }
+
+        Behavior on opacity { NumberAnimation { duration: 80; easing.type: Easing.OutCubic } }
     }
 }
