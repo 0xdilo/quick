@@ -117,7 +117,7 @@ PanelWindow {
 
     function doPostAction(action) {
         if (action === "clipboard") {
-            Hyprland.dispatch("exec wl-copy < '" + tempFile + "' && notify-send 'Screenshot' 'Copied to clipboard' && rm '" + tempFile + "'")
+            Hyprland.dispatch("exec wl-copy --type image/png < '" + tempFile + "' && notify-send 'Screenshot' 'Copied to clipboard' && rm '" + tempFile + "'")
         } else if (action === "save") {
             Hyprland.dispatch("exec mkdir -p '" + saveDir + "' && mv '" + tempFile + "' '" + saveDir + "/' && notify-send 'Screenshot' 'Saved'")
         }

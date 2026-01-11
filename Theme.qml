@@ -2,22 +2,22 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    readonly property color background: "#1e1c24"
-    readonly property color surface: "#24212b"
+    readonly property color background: "#1c2323"
+    readonly property color surface: "#212a2a"
     readonly property color surfaceHigh: Qt.lighter(surface, 1.15)
-    readonly property color foreground: "#d7d6da"
-    readonly property color muted: "#5a546c"
+    readonly property color foreground: "#d7dada"
+    readonly property color muted: "#546969"
 
-    readonly property color accent: "#9d6446"
-    readonly property color secondary: "#467f9d"
+    readonly property color accent: "#469c9d"
+    readonly property color secondary: "#9d4746"
 
-    readonly property color red: "#c56d3f"
-    readonly property color blue: "#3f97c5"
+    readonly property color red: "#c5413f"
+    readonly property color blue: "#3fc3c5"
     readonly property color yellow: "#67f767"
-    readonly property color magenta: "#3b68c3"
+    readonly property color magenta: "#6767f7"
     readonly property color pink: "#f767e5"
     readonly property color error: "#f38ba8"
-    readonly property color success: "#c7b29d"
+    readonly property color success: "#f7f767"
 
     readonly property color bgAlpha90: Qt.rgba(background.r, background.g, background.b, 0.94)
     readonly property color bgAlpha80: Qt.rgba(background.r, background.g, background.b, 0.88)

@@ -66,8 +66,8 @@ PanelWindow {
         selectedIndex = 0
     }
 
-    function selectItem(id) {
-        selectProc.command = ["sh", "-c", "echo '" + id + "' | cliphist decode | wl-copy"]
+    function selectItem(line) {
+        selectProc.command = ["sh", "-c", "echo '" + line.replace(/'/g, "'\\''") + "' | cliphist decode | wl-copy"]
         selectProc.running = true
         hide()
     }
@@ -79,10 +79,9 @@ PanelWindow {
             onRead: data => {
                 var idx = data.indexOf("\t")
                 if (idx > 0) {
-                    var id = data.substring(0, idx)
                     var text = data.substring(idx + 1)
                     var newItems = clipboard.items.slice()
-                    newItems.push({ id: id, text: text })
+                    newItems.push({ line: data, text: text })
                     clipboard.items = newItems
                 }
             }
@@ -185,7 +184,7 @@ PanelWindow {
                                 clipboard.selectedIndex = Math.max(clipboard.selectedIndex - 1, 0)
                             } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                                 if (clipboard.filteredItems.length > 0) {
-                                    clipboard.selectItem(clipboard.filteredItems[clipboard.selectedIndex].id)
+                                    clipboard.selectItem(clipboard.filteredItems[clipboard.selectedIndex].line)
                                 }
                             }
                         }
@@ -289,7 +288,7 @@ PanelWindow {
                         anchors.fill: parent
                         hoverEnabled: true
                         cursorShape: Qt.PointingHandCursor
-                        onClicked: clipboard.selectItem(modelData.id)
+                        onClicked: clipboard.selectItem(modelData.line)
                         onEntered: clipboard.selectedIndex = index
                     }
                 }
